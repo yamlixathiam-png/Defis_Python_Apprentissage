@@ -1,0 +1,306 @@
+produits = []
+panier = []
+commandes = []
+
+
+def ajouter_un_produit():
+
+    global produits 
+
+    try: 
+        id = input("Identifiant unique (P1, P2...) : ").upper()
+        nom = input("Nom du produit : ")
+        prix = float(input("Prix unitaire en francs : "))
+        stock = int(input("Quantité disponible : "))
+
+        # Créer le nouveau produit
+        nouveau_produit = {  # ← Nom différent!
+            "ID" : id,
+            "NOM_DU_PRODUIT" : nom,
+            "PRIX" : prix,
+            "STOCK" : stock
+        }
+
+        # Vérifier que l'ID n'existe pas
+        for p in produits:  # ← Utilise "p" au lieu de "produit"
+            if p["ID"] == id:
+                print("❌ PRODUIT DÉJÀ EN STOCK!")
+                return
+        else: 
+            print("✅ PRODUIT AJOUTÉ!")
+
+        # Ajouter le nouveau produit
+        produits.append(nouveau_produit)  # ← Ajoute "nouveau_produit"
+
+    except ValueError: 
+        print("❌ ERREUR: Entrée invalide!")
+
+def afficher_les_produits():
+
+    global produits
+
+    if len(produits) == 0:
+        print("❌ PAS DE PRODUITS")
+        return
+    
+    # Affiche le titre UNE SEULE FOIS
+    print("-----NOS PRODUITS-----")
+    
+    for produit in produits:
+        print(f"ID PRODUIT : {produit['ID']}")
+        print(f"NOM DU PRODUIT : {produit['NOM_DU_PRODUIT']}")
+        print(f"PRIX: {produit['PRIX']} francs")
+        print(f"STOCK : {produit['STOCK']}")
+        print("_______________________________")
+
+def cherche_un_produit():
+
+    global produits
+
+    if len(produits) == 0:
+        print("❌ PAS DE PRODUITS")
+        return 
+    
+    id = input("Identifiant unique (P1, P2...) : ").upper()
+
+    print("------RECHERCHE------")
+    for prod in produits :
+        if prod["ID"] == id: 
+            print(f"ID PRODUIT : {prod['ID']}")
+            print(f"NOM DU PRODUIT : {prod['NOM_DU_PRODUIT']}")
+            print(f"PRIX: {prod['PRIX']} francs")
+            print(f"STOCK : {prod['STOCK']}")
+            print("_______________________________")
+            break
+    else:
+        print("🔴🔴ID DIFFERENT DE NOTRE STOCKS ")
+
+
+def supprime_un_produit():
+    global produits
+    if len(produits) == 0:
+        print("❌PAS DE PRODUIT")
+        return
+    
+    id = input("Pour Supprimer Un Produit entre ID : ").upper()
+    for prod in produits:
+        if prod["ID"] == id:
+            produits.remove(prod)
+            print("✅produit supprimer")
+            return
+    else :
+        print("❌Pas Trouve")
+
+def ajouter_au_panier():
+    global produits, panier
+
+    try:
+        if len(produits) == 0:
+            print("❌ PAS DE PRODUIT POUR AJOUTER DANS LE PANIER")
+            return
+
+        id_produit = input("ID du produit : ")
+        quantite = int(input("La quantité : "))
+
+        for prod in produits:
+            if prod["ID"] == id_produit and prod["STOCK"] < quantite:
+                print(f"🔴 STOCK INSUFFISANT ({quantite} demandé)")
+                return
+            
+            elif prod["ID"] == id_produit and prod["STOCK"] >= quantite:
+
+                articles = {
+                    "PRODUIT_ID" : prod["ID"],
+                    "QUANTITE" : quantite,
+                    "PrixUnitaire": prod["PRIX"],
+                    "SousTotal" : prod["PRIX"]*quantite 
+                }
+                
+                for item in panier:
+                    if item["PRODUIT_ID"] == id_produit:
+                        print("❌DEJA DANS LE PANIER")
+                        return
+                    
+                panier.append(articles)
+                print("✅PRODUIT AJOUTER")
+                
+
+    except ValueError:
+        print("🚫 ATTENTION AUX ENTRÉES")
+
+
+def retirer_du_panier():
+
+    global panier
+
+    if len(panier) == 0:
+        print("🔴PANIER VIDE !!!")
+        return
+    
+    print("------RETIRER DU PANIER--------")
+    id_panier = input("Entre ID : ")
+    for pan in panier:
+        if pan["PRODUIT_ID"] == id_panier:
+            panier.remove(pan)
+            print(f"❌le produit sera retire {id_panier}")
+            return 
+    else:
+        print("❌Introuvable")
+        return 
+
+def voir_le_panier():
+    global panier
+
+    if len(panier) == 0:
+        print("🔴PANIER VIDE")
+        return 
+    
+    print("-------PANIER--------")
+    for pan in panier :
+
+        print(f"ID DU PRODUIT : {pan["PRODUIT_ID"]}")
+        print(f"QUANTITE : {pan["QUANTITE"]}")
+        print(f"PRIX_UNITAIRE : {pan["PrixUnitaire"]} fcfa")
+        print(f"SOUS TOTAL : {pan["SousTotal"]} fcfa")
+        print("---------------------------------")
+        
+
+def vider_le_panier():
+
+    global panier
+    if len(panier) == 0:
+        print("🔴PANIER VIDE")
+        return
+
+    vide = input("TU VEUX VIDE : ").upper()
+    if vide == "OUI":
+        panier.clear()
+        print("✅VIDER")
+        return
+    else : 
+        print("TU VEUX ???")
+
+
+def valider_les_commandes():
+    global panier, commandes 
+    if len(panier) == 0:
+        print("PANIER VIDE")
+        return 
+    
+    nom = input("Nom complet : ")
+    numero = "C" + str(len(commandes) + 1).zfill(3)
+    article = panier.copy()
+    statut = "en cours..."
+    # somme des sous total MontantTotal
+    montanttotal = 0
+    for item in panier:
+        montanttotal += item["SousTotal"]
+    
+    
+    comande = {
+        "Nom" : nom, 
+        "Numero" : numero, 
+        "Article" : article,
+        "MontantTotal" : montanttotal,
+        "Statut" : statut
+    } 
+
+    commandes.append(comande)
+    panier = []
+    print("✅ Commande créée! Numéro: " + numero)
+
+
+def afficher_les_commandes():
+    global commandes
+    if len(commandes) == 0:
+        print("Commande vide")
+        return 
+    
+    print("-----COMMANDES------")
+    for item in commandes:
+        print(f"NOM : {item["Nom"]}")
+        print(f"Numero : {item["Numero"]}")
+        print(f"Article : {item["Article"]}")
+        print(f"MontantT : {item["MontantTotal"]}")
+        print(f"Statut : {item["Statut"]}")
+        print("----------------------------")
+
+def appliquer_reduction():
+    global panier
+    if len(panier) == 0:
+        print("Panier vide")
+        return
+    pourcentage = int(input("Entre le % de réduction (0-100): "))
+    if pourcentage < 0 or pourcentage > 100:
+        print("pourcentage invalide")
+        return 
+    else : 
+        total = 0
+        for total_o in panier:
+            total += total_o["SousTotal"]
+        total_apres = total_o * (1 - pourcentage/100)
+        reduction = total - total_apres
+        
+    print(f"VOUS AVEZ UNE Reduction DE {reduction}")
+
+def quitter():
+    print("Merci")
+    quit()
+
+
+def menu():
+    while True:
+        menu = """
+            === PANIER E-COMMERCE ===
+
+            GESTION PRODUITS:
+            1. ➕ Ajouter un produit
+            2. 📋 Afficher les produits
+            3. 🔍 Chercher un produit
+            4. ❌ Supprimer un produit
+
+            GESTION PANIER:
+            5. 🛒 Ajouter au panier
+            6. 🛒 Retirer du panier
+            7. 📋 Voir le panier
+            8. 🧹 Vider le panier
+
+            GESTION COMMANDE:
+            9. ✅ Valider la commande
+            10. 📊 Voir les commandes
+            11. 💰 Appliquer réduction
+            12. 🚪 Quitter """
+        
+        print(menu)
+        choix = input("CHOIX🟢 : ")
+
+        if choix == "1":
+            ajouter_un_produit()
+        elif choix == "2":
+            afficher_les_produits()
+        elif choix == "3":
+            cherche_un_produit()
+        elif choix == "4":
+            supprime_un_produit()
+        elif choix == "5":
+            ajouter_au_panier()
+        elif choix == "6":
+            retirer_du_panier()
+        elif choix == "7":
+            voir_le_panier()
+        elif choix == "8":
+            vider_le_panier()
+        elif choix == "9":
+            valider_les_commandes()
+        elif choix == "10":
+            afficher_les_commandes()
+        elif choix == "11":
+            appliquer_reduction()
+        elif choix == "12":
+            quitter()
+        else:
+            print("❌ HORS SÉRIE ‼")
+
+
+if __name__ == "__main__":
+    menu()
